@@ -25,8 +25,10 @@ client.debug = function (msg) {
   }
 }
 
+
+let tableData = [];
 function connectCallback(result) {
-  document.getElementById('stomp-status').innerHTML = "It has now successfully connected to a stomp server serving price updates for some foreign exchange currency pairs."
+  // document.getElementById('stomp-status').innerHTML = "It has now successfully connected to a stomp server serving price updates for some foreign exchange currency pairs."
   client.subscribe('/fx/prices', function (message) {
     console.log(JSON.parse(message.body));
   });
@@ -36,5 +38,5 @@ client.connect({}, connectCallback, function (error) {
   alert(error.headers.message)
 })
 
-const exampleSparkline = document.getElementById('example-sparkline')
-Sparkline.draw(exampleSparkline, [1, 2, 3, 6, 8, 20, 2, 2, 4, 2, 3])
+// const exampleSparkline = document.getElementById('example-sparkline')
+// Sparkline.draw(exampleSparkline, [1, 2, 3, 6, 8, 20, 2, 2, 4, 2, 3])

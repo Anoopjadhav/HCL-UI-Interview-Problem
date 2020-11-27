@@ -11,13 +11,12 @@ body {
  
 }
 table {
-    margin: auto;
-    left: auto;
-    right: auto;
-
     border:0;
     color:black;
-    
+    border:1px solid lightgrey;
+    border-radius:4px;
+    padding:2rem;
+    min-width:693px;
 }
 
 .problem1 thead th{
@@ -26,8 +25,18 @@ table {
     background:rgb(228, 228, 228);
     padding:0.5rem 1rem;
     font-weight: normal;
+    
 }
 
+.sparkline{
+    border:1px solid red;
+    max-width:693px;
+    height:200px;
+    margin-top:2rem;
+    border:1px solid lightgrey;
+    border-radius:4px;
+    padding:2rem;
+}
 .blink{
     animation : blinkAnime 0.5s infinite;
 }

@@ -1,4 +1,5 @@
 <html>
+
 <head>
     <!--
     This is the library that provides websocket streaming pub/sub
@@ -8,29 +9,36 @@
     <script src="sparkline.js"></script>
 
 </head>
+
 <body>
 
-<!-- This is a description of what you should do for this task.  You can remove it for your answer -->
-<section>
-    <table class="problem1">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Current Best Bid</th>
-                <th>Current Best Ask Price</th>
-                <th>Best Bid Last Changed</th>
-                <th>Best Ask Price Last Changed</th>
-            </tr>
-        </thead>
-        <tbody>
-          
-        </tbody>
-    </table>
-</section>
+    <!-- This is a description of what you should do for this task.  You can remove it for your answer -->
+    <section>
+        <div>
+            <table class="problem1">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Current Best Bid</th>
+                        <th>Current Best Ask Price</th>
+                        <th>Best Ask Price Last Changed</th>
+                        <th>Best Bid Last Changed</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-<!-- Code you write in index.js and anything it depends on will be bundled into bundle.js and
+                </tbody>
+            </table>
+            <div class="sparkline">
+                <div id="chart"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Code you write in index.js and anything it depends on will be bundled into bundle.js and
      is included here -->
-<script src="bundle.js"></script>
+    <script src="bundle.js"></script>
 
 </body>
+
 </html>

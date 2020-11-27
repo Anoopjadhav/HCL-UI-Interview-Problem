@@ -27,3 +27,16 @@ table {
     padding:0.5rem 1rem;
     font-weight: normal;
 }
+
+.blink{
+    animation : blinkAnime 0.5s infinite;
+}
+
+@keyframes blinkAnime{
+    0%{
+        background:yellow;
+    }
+    100%{
+        background:white;
+    }
+}

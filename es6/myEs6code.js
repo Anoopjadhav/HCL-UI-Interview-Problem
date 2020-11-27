@@ -1,15 +1,30 @@
 
-class TableClass {
-    constructor() {
-      this.currencies = [];//Object of rowId & currency
-      this.tableData = [];
-      this.midPriceArray = [];
-      this.exampleSparkline;
-    }
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+      // AMD. Register as an anonymous module.
+      define(factory);
+  } else if (typeof exports === 'object') {
+      // Node. Does not work with strict CommonJS, but
+      // only CommonJS-like enviroments that support module.exports,
+      // like Node.
+      module.exports = factory();
+  } else {
+      // Browser globals (root is window)
+      root.Sparkline = factory();
+}
+}(this, function () {
+
+
+
+function TableClass(){
+   
+    this.currencies = [];//Object of rowId & currency
+    this.tableData = [];
+    this.midPriceArray = [];
+    this.exampleSparkline;
   
-    
   
-    addCurrency(currency) {
+    this.addCurrency = function(currency) {
       this.currencies.push({
         'rowId': this.tableData.length,
         'currency': currency
@@ -17,7 +32,7 @@ class TableClass {
       return this.tableData.length;
     }
   
-    renderTable() {
+    this.renderTable = function() {
       this.tableData.sort((a, b) => {
         if (parseFloat(a.lastChangeBid) < parseFloat(b.lastChangeBid)) {
           return 1;
@@ -65,7 +80,7 @@ class TableClass {
       })
     }
   
-    renderRow(rowData) {
+    this.renderRow = function(rowData) {
       try {
         let tBody = document.querySelector('table > tbody');
         var row = document.createElement('tr');
@@ -104,7 +119,7 @@ class TableClass {
       }
     }
   
-    pushTableRowAtIndex(index, currentRowData) {
+    this.pushTableRowAtIndex = function(index, currentRowData) {
       // index = 4 currentRowIndex=2
       let currentRowIndex;
       let localTableData = JSON.parse(JSON.stringify(this.tableData));
@@ -128,7 +143,7 @@ class TableClass {
   
     }
   
-    pushIndex(currentRowData) {
+    this.pushIndex = function(currentRowData) {
       try {
         //calculate the index where the new element needs to be pushed
         if (this.tableData.length > 1) {
@@ -162,7 +177,7 @@ class TableClass {
   
     }
   
-    createNewRow(currentRowData) {
+    this.createNewRow = function(currentRowData) {
       try {
         //push the new row
         let rowId = this.addCurrency(currentRowData.name);
@@ -176,7 +191,7 @@ class TableClass {
       }
     }
   
-    getRowId(key) {
+    this.getRowId = function(key) {
       let rowId;
       this.currencies.forEach((ele) => {
         if (ele.currency === key)
@@ -185,19 +200,19 @@ class TableClass {
       return rowId;
     }
   
-    highlightItem(tRow) {
+    this.highlightItem= function(tRow) {
       tRow.classList.add('blink');
       setTimeout(function () {
         tRow.classList.remove('blink');
       }, 500);
     }
   
-    updateRowItem(rowItem, value) {
+    this.updateRowItem= function(rowItem, value) {
       rowItem.innerText = value;
       this.highlightItem(rowItem);
     }
   
-    updateTableRowData(newRowData) {
+    this.updateTableRowData= function(newRowData) {
       let updateRowId;
       for (let i = 0; i < this.tableData.length; i++) {
         if (this.tableData[i].name === newRowData.name) {
@@ -212,7 +227,7 @@ class TableClass {
       return this.tableData[updateRowId];
     }
   
-    updateExistingRow(rowData) {
+    this.updateExistingRow= function(rowData) {
       rowData = this.updateTableRowData(rowData);
       let tRow = document.querySelector(`tr[id='${rowData.id}']`);
       if (tRow) {
@@ -226,7 +241,7 @@ class TableClass {
   
     }
   
-    checkIfAlreadyPresent(key) {
+    this.checkIfAlreadyPresent= function(key) {
       try {
         let flag = false;
         this.currencies.forEach((ele) => {
@@ -240,12 +255,12 @@ class TableClass {
       }
     }
   
-    renderChart(){
+    this.renderChart= function(){
       let exampleSparkline = document.getElementById('chart')
       Sparkline.draw(exampleSparkline, this.midPriceArray)
     }
   
-    calculateMidPrice(){
+    this.calculateMidPrice= function(){
       try{
         setInterval(()=>{
           let calculatedMidPrice = (this.tableData[0].bestBid + this.tableData[0].bestBid) / 2;
@@ -262,5 +277,9 @@ class TableClass {
       }
     }
   
-  }
-  
+}
+
+
+return TableClass;
+
+}));

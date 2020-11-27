@@ -4,11 +4,28 @@
  * Edit it as you need.  It currently contains things that you might find helpful to get started.
  */
 
+const sparkline = require('./site/sparkline')
+
 // This is not really required, but means that changes to index.html will cause a reload.
 require('./site/index.html')
 // Apply the styles in style.css to the page.
 require('./site/style.css')
 
+Sparkline = require('./site/sparkline')
+
+Sparkline.options = {
+  width: 670,
+  lineColor: "blue",
+  lineWidth: 1,
+  startColor: "green",
+  endColor: "red",
+  maxColor: "transparent",
+  minColor: "transparent",
+  minValue: null,
+  maxValue: null,
+  dotRadius: 2.5,
+  tooltip: null
+};
 // if you want to use es6, you can do something like
 //     require('./es6/myEs6code')
 // here to load the myEs6code.js file, and it will be automatically transpiled.
@@ -32,11 +49,14 @@ client.connect({}, connectCallback, function (error) {
 
 
 class TableClass {
-
   constructor() {
     this.currencies = [];//Object of rowId & currency
     this.tableData = [];
+    this.midPriceArray = [];
+    this.exampleSparkline;
   }
+
+  
 
   addCurrency(currency) {
     this.currencies.push({
@@ -269,11 +289,23 @@ class TableClass {
     }
   }
 
+  renderChart(){
+    let exampleSparkline = document.getElementById('chart')
+    Sparkline.draw(exampleSparkline, this.midPriceArray)
+  }
 
-  generateSparkLines(){
+  calculateMidPrice(){
     try{
-    const exampleSparkline = document.getElementById('chart')
-    Sparkline.draw(exampleSparkline, [1, 2, 3, 6, 8, 20, 2, 2, 4, 2, 3])
+      setInterval(()=>{
+        let calculatedMidPrice = (this.tableData[0].bestBid + this.tableData[0].bestBid) / 2;
+       
+        if(this.midPriceArray.length > 30){
+          this.midPriceArray.pop();
+          this.midPriceArray.unshift(calculatedMidPrice);
+        }else{
+          this.midPriceArray.push(calculatedMidPrice);
+        }
+      },1000)
     }catch(e){
       console.log(e);
     }
@@ -281,7 +313,14 @@ class TableClass {
 
 }
 
+
 const tableObj = new TableClass();
+//Create an object of the table Class
+tableObj.calculateMidPrice();
+
+setInterval(function(){
+  tableObj.renderChart();
+},100)
 
 function connectCallback(result) {
   client.subscribe('/fx/prices', function (message) {
@@ -298,7 +337,7 @@ function connectCallback(result) {
       }
 
       tableObj.renderTable();
-      tableObj.generateSparkLines();
+
     }
   });
 }

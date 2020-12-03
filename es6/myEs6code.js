@@ -74,15 +74,27 @@
         console.log(e);
       }
     }
-    // this.sortTable(){
-    //   try{
-    //     this.tableData.sortTable((a.b)=>{
-    //       if(a.)
-    //     })
-    //   }catch(e){
-    //     console.log(e);
-    //   }
-    // }
+    this.sortTable = function(){
+      try{
+        this.tableData.sort((a, b) => {
+          if (parseFloat(a.lastChangeBid) < parseFloat(b.lastChangeBid)) {
+            return 1;
+          } else {
+            return -1
+          }
+        })
+        this.rerenderTable();
+      }catch(e){
+        console.log(e);
+      }
+    }
+    this.rerenderTable = function(){
+      try{
+
+      }catch(e){
+        console.log(e);
+      }
+    }
 
   }
 
@@ -94,6 +106,7 @@
     this.lastChangeAsk = lastChangeAsk;
     this.lastChangeBid = lastChangeBid;
     this.midPriceArray = [];
+    this.element={};
 
     this.renderChart = function () {
       try {
@@ -142,6 +155,7 @@
         //create a sparline element
         row.appendChild(rowItem);
 
+        this.element = row;
         tBody.appendChild(row);
 
         //calculate the mid price

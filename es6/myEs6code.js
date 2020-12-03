@@ -1,22 +1,47 @@
 
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
     define(factory);
   } else if (typeof exports === 'object') {
-    // Node. Does not work with strict CommonJS, but
-    // only CommonJS-like enviroments that support module.exports,
-    // like Node.
     module.exports = factory();
   } else {
-    // Browser globals (root is window)
     root.Sparkline = factory();
   }
 }(this, function () {
 
+
+  /*
+  hello,
+
+  I have created the following two classes to handle the overall functionality in the same file- 
+  
+  TableClass -
+  This handles the table rendering, creation of new rows/ updates on the existing rows, sorting of the rows etc.
+  
+  RowClass - 
+  This stores all the row related data and functionality. ie row render functionality, sparks graph render methods, Timer functionality.
+  
+
+  Code execution - 
+  1. Initially in the index.js file we create the tableObj.
+  2. tableObj receives the data from the web socket randomly. This data is then used to create/update the row objects.
+  3. Row objects then handles the actually dom updates. All the updates would be highlighted will a yellow background.
+  4. As soon as the row object is created the setInterval function starts which will only keep the latest 30sec data in the array. 
+
+  let me know incase any issues. 
+
+  Thanks,
+  Anoop
+
+  anoopjadhav@gmail.com
+  */
+
   function TableClass() {
-    this.currencies = [];//Object of rowId & currency
-    this.tableData = [];
+
+    this.currencies = [];//Stores the map of unique id and currency
+    this.tableData = [];//Stores the row objects
+
+
     this.addCurrency = function (currency) {
       this.currencies.push({
         'rowId': this.tableData.length,
@@ -24,6 +49,8 @@
       });
       return this.tableData.length;
     }
+
+
     //Function to create a new row in the tableData Obj
     this.createNewRow = function (currentRowData) {
       try {
@@ -42,6 +69,8 @@
         console.log(e);
       }
     }
+
+    //FUNCTION TO GET THE UNQIUE ID OF THE ROW BASED ON THE CURRENCY
     this.getRowId = function (key) {
       let rowId;
       this.currencies.forEach((ele) => {
@@ -50,6 +79,9 @@
       })
       return rowId;
     }
+
+
+    //FUNCTION TO UPDATE THE EXISITING ROW 
     this.updateExistingRow = function (rowData) {
       //Fetch Row ID from currency map
       let rowId = this.getRowId(rowData.name);
@@ -61,6 +93,8 @@
         }
       })
     }
+
+    //FUNCTION TO CHECK IF THE ROW IS ALREADY PRESENT
     this.checkIfAlreadyPresent = function (key) {
       try {
         let flag = false;
@@ -74,8 +108,10 @@
         console.log(e);
       }
     }
-    this.sortTable = function(){
-      try{
+
+    //FUNCTION TO SORT THE TABLE AND RERENDER THE ROWS
+    this.sortTable = function () {
+      try {
         this.tableData.sort((a, b) => {
           if (parseFloat(a.lastChangeBid) < parseFloat(b.lastChangeBid)) {
             return 1;
@@ -84,14 +120,25 @@
           }
         })
         this.rerenderTable();
-      }catch(e){
+      } catch (e) {
         console.log(e);
       }
     }
-    this.rerenderTable = function(){
-      try{
 
-      }catch(e){
+    //FUNCTION TO REARRANGE THE ROWS AS PER THE SORTING
+    this.rerenderTable = function () {
+      try {
+
+        let tBody = document.querySelector('table > tbody');
+        while (tBody.firstChild) {
+          tBody.removeChild(tBody.firstChild);
+        }
+
+        this.tableData.forEach((ele)=>{
+          tBody.appendChild(ele.element);
+        })
+
+      } catch (e) {
         console.log(e);
       }
     }
@@ -99,15 +146,22 @@
   }
 
   function Row(tableId, name, bestBid, bestAsk, lastChangeAsk, lastChangeBid) {
+
+    //Row data
     this.id = tableId;
     this.name = name;
     this.bestBid = bestBid;
     this.bestAsk = bestAsk;
     this.lastChangeAsk = lastChangeAsk;
     this.lastChangeBid = lastChangeBid;
-    this.midPriceArray = [];
-    this.element={};
+    
+    //current row dom element
+    this.element = {};
 
+    //Array which stores all the midPrice calculatons based on which the graph is rendered.
+    this.midPriceArray = [];
+
+    // FUNCTION TO RENDER THE CHART
     this.renderChart = function () {
       try {
         let tRow = document.querySelector(`tr[id='${this.id}']`);
@@ -118,6 +172,7 @@
       }
     }
 
+    //FUNCTION TO CREATE A NEW TABLE ROW AND RENDER IT ON THE DOM
     this.createRow = () => {
       try {
         let tBody = document.querySelector('table > tbody');
@@ -152,20 +207,53 @@
 
         rowItem = document.createElement('td');
         rowItem.classList.add('sparkline');
-        //create a sparline element
+        rowItem.dataset.currency = this.name;
+       
         row.appendChild(rowItem);
 
+        //set this element in an obj attr as it will be required for sorting and rerendering
         this.element = row;
-        tBody.appendChild(row);
 
-        //calculate the mid price
-        this.calculateMidPrice();
+        tBody.appendChild(row);
+        
+        this.startDataRefreshClock();
 
       } catch (e) {
         console.log(e);
       }
     }
 
+
+    //FUNCTION TO START THE TIMER
+    this.startDataRefreshClock = function(){
+      setInterval(()=>{
+        //calculate the mid price every second
+        this.calculateMidPrice();
+      },100)
+    }
+
+    //FUNCTION TO CALCULATE THE MID PRICE 
+    //AND REMOVE OLD DATA IF BEYOND 30SEC
+    this.calculateMidPrice = function () {
+      try {
+        let calculatedMidPrice = (this.bestBid + this.bestAsk) / 2;
+
+        if (this.midPriceArray.length > 3000) {
+          this.midPriceArray.pop();
+          this.midPriceArray.unshift(calculatedMidPrice);
+        } else {
+          this.midPriceArray.push(calculatedMidPrice);
+        }
+        setTimeout(() => {
+          this.renderChart();
+        }, 0)
+
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    //FUNCTION TO UPDATE THE EXISTING ROW
     this.updateRow = function ({ name, bestBid, bestAsk, lastChangeAsk, lastChangeBid }) {
       //assign the new values
       this.name = name;
@@ -184,41 +272,18 @@
         this.updateRowItem(tRow.querySelector('#lastChangeAsk'), this.lastChangeAsk);
         this.updateRowItem(tRow.querySelector('#lastChangeBid'), this.lastChangeBid);
       }
-      this.calculateMidPrice();
-    }
 
+    }
     this.highlightItem = function (tRow) {
       tRow.classList.add('blink');
       setTimeout(function () {
         tRow.classList.remove('blink');
       }, 500);
     }
-
     this.updateRowItem = function (rowItem, value) {
       rowItem.innerText = value;
       this.highlightItem(rowItem);
     }
-
-    this.calculateMidPrice = function () {
-      try {
-        let calculatedMidPrice = (this.bestBid + this.bestAsk) / 2;
-        if (this.midPriceArray.length > 300) {
-          this.midPriceArray.pop();
-          this.midPriceArray.unshift(calculatedMidPrice);
-        } else {
-          this.midPriceArray.push(calculatedMidPrice);
-        }
-
-        console.log(this.midPriceArray);
-        setTimeout(() => {
-          this.renderChart();
-        }, 0)
-
-      } catch (e) {
-        console.log(e);
-      }
-    }
-
   }
 
   return TableClass;

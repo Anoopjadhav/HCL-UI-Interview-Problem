@@ -38,6 +38,18 @@ table {
     border:1px solid lightgrey;
     border-radius:4px;
     padding:2rem !important;
+    position:relative;
+}
+.sparkline:before{
+   content:attr(data-currency);
+   position:absolute;
+   top:0.5rem;
+   left:0.5rem;
+   color:lightgrey;
+
+}
+#name{
+    font-weight: bold;
 }
 .blink{
     animation : blinkAnime 0.5s infinite;

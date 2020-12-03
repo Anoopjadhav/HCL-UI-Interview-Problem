@@ -51,7 +51,7 @@ client.connect({}, connectCallback, function (error) {
 /********Code Starts Here********** */
 
 // Created a TableClass to encapsulate all the Table related functions. 
-// The class is present in the es6 folder named and file is named as myES6code.js
+// The class is present in the es6 folder named as myES6code.js
 
 //Create an object of the table Class
 const tableObj = new TableClass();
@@ -72,9 +72,8 @@ function connectCallback(result) {
         //also push the new currency in the currencies array
         tableObj.createNewRow(result);
       }
-
-      //Render the table based in the data present in the tableData list
-      // tableObj.renderTable();
+      // Sort Table
+      tableObj.sortTable();
     }
   });
 }

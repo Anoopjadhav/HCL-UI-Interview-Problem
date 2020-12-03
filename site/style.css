@@ -25,22 +25,27 @@ table {
     background:rgb(228, 228, 228);
     padding:0.5rem 1rem;
     font-weight: normal;
-    
+}
+.problem1 td{
+   padding:1rem 0;
 }
 
 .sparkline{
     border:1px solid red;
-    max-width:693px;
+    max-width:500px;
     height:30px;
     margin-top:2rem;
     border:1px solid lightgrey;
     border-radius:4px;
-    padding:2rem;
+    padding:2rem !important;
 }
 .blink{
     animation : blinkAnime 0.5s infinite;
 }
 
+#chart{
+    width:400px;
+}
 @keyframes blinkAnime{
     0%{
         background:yellow;

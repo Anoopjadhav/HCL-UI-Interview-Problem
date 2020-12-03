@@ -14,7 +14,7 @@ require('./site/style.css')
 Sparkline = require('./site/sparkline')
 
 Sparkline.options = {
-  width: 670,
+  width: 400,
   lineColor: "blue",
   lineWidth: 1,
   startColor: "green",
@@ -48,32 +48,33 @@ client.connect({}, connectCallback, function (error) {
 })
 
 
-const tableObj = new TableClass();
+/********Code Starts Here********** */
+
+// Created a TableClass to encapsulate all the Table related functions. 
+// The class is present in the es6 folder named and file is named as myES6code.js
 
 //Create an object of the table Class
-tableObj.calculateMidPrice();
+const tableObj = new TableClass();
 
-setInterval(function(){
-  tableObj.renderChart();
-},100)
-
-
+//In the connectCallback we get the dummy response from the web socket. 
 function connectCallback(result) {
   client.subscribe('/fx/prices', function (message) {
     if (message.body) {
       let result = JSON.parse(message.body);
+      //Check if the current currency is already present in the table
       let isalreadyPresent = tableObj.checkIfAlreadyPresent(result.name)
+      
       if (isalreadyPresent) {
-        //update existing entry 
+        //if present then update the existing entry in the object i.e tableData 
         tableObj.updateExistingRow(result);
       } else {
-        //unqiue add an entry
-        //push it in the currencies array
+        //if not present then add a new entry in the tableData list
+        //also push the new currency in the currencies array
         tableObj.createNewRow(result);
       }
 
-      tableObj.renderTable();
-
+      //Render the table based in the data present in the tableData list
+      // tableObj.renderTable();
     }
   });
 }

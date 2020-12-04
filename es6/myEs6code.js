@@ -238,7 +238,7 @@
       try {
         let calculatedMidPrice = (this.bestBid + this.bestAsk) / 2;
 
-        if (this.midPriceArray.length > 3000) {
+        if (this.midPriceArray.length > 300) {
           this.midPriceArray.pop();
           this.midPriceArray.unshift(calculatedMidPrice);
         } else {

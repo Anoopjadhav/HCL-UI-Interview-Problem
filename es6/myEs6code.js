@@ -65,8 +65,11 @@
         newRow.createRow();
         this.tableData.push(newRow);
 
+        return true;
+
       } catch (e) {
         console.log(e);
+        return false;
       }
     }
 
@@ -83,15 +86,22 @@
 
     //FUNCTION TO UPDATE THE EXISITING ROW 
     this.updateExistingRow = function (rowData) {
-      //Fetch Row ID from currency map
-      let rowId = this.getRowId(rowData.name);
+      try {
+        let updated = false;
+        //Fetch Row ID from currency map
+        let rowId = this.getRowId(rowData.name);
 
-      //update the row
-      this.tableData.forEach(ele => {
-        if (ele.id == rowId) {
-          ele.updateRow(rowData);
-        }
-      })
+        //update the row
+        this.tableData.forEach(ele => {
+          if (ele.id == rowId) {
+            updated = ele.updateRow(rowData);
+          }
+        })
+        return updated;
+      } catch (e) {
+        console.log(e);
+        return false;
+      }
     }
 
     //FUNCTION TO CHECK IF THE ROW IS ALREADY PRESENT
@@ -120,7 +130,9 @@
           }
         })
         this.rerenderTable();
+        return true;
       } catch (e) {
+        return false;
         console.log(e);
       }
     }
@@ -156,7 +168,7 @@
     this.lastChangeBid = lastChangeBid;
     this.rowOrder = ['name', 'bestBid', 'bestAsk', 'lastChangeAsk', 'lastChangeBid', 'sparkline'];
 
-    this.counter=0;
+    this.counter = 0;
 
     //current row dom element
     this.element = {};
@@ -206,15 +218,17 @@
           row.appendChild(this.createRowItem(rowName));
         })
 
-        
         //set this element in an obj attr as it will be required for sorting and rerendering
         this.element = row;
         tBody.appendChild(row);
 
         this.calculateMidPrice();
 
+        return true;
+
       } catch (e) {
         console.log(e);
+        return false;
       }
     }
 
@@ -233,10 +247,10 @@
         this.midPriceArrayTimestampMap = this.midPriceArrayTimestampMap.filter(ele => {
           let currentTime = new Date();
           //check if the stored value timestamp is older than 30secs
-          if(currentTime.getTime() - ele.time.getTime() <= 30000){
+          if (currentTime.getTime() - ele.time.getTime() <= 30000) {
             midPriceArrTemp.push(ele.value);
             return true;
-          }else{
+          } else {
             //remove the entry older than 30sec
             return false;
           }
@@ -244,7 +258,7 @@
 
         this.midPriceArray = midPriceArrTemp;
 
-        if(this.name == 'gbpjpy'){
+        if (this.name == 'gbpjpy') {
           console.log(midPriceArrTemp);
         }
         setTimeout(() => {
@@ -258,25 +272,33 @@
 
     //FUNCTION TO UPDATE THE EXISTING ROW
     this.updateRow = function ({ name, bestBid, bestAsk, lastChangeAsk, lastChangeBid }) {
-      //assign the new values
-      this.name = name;
-      this.bestBid = bestBid;
-      this.bestAsk = bestAsk;
-      this.lastChangeAsk = lastChangeAsk;
-      this.lastChangeBid = lastChangeBid;
+      try {
+        //assign the new values
+        this.name = name;
+        this.bestBid = bestBid;
+        this.bestAsk = bestAsk;
+        this.lastChangeAsk = lastChangeAsk;
+        this.lastChangeBid = lastChangeBid;
 
-      //update the DOM accordingly 
-      let tRow = document.querySelector(`tr[id='${this.id}']`);
+        //update the DOM accordingly 
+        let tRow = document.querySelector(`tr[id='${this.id}']`);
 
-      if (tRow) {
-        this.updateRowItem(tRow.querySelector('#name'), this.name);
-        this.updateRowItem(tRow.querySelector('#bestBid'), this.bestBid);
-        this.updateRowItem(tRow.querySelector('#bestAsk'), this.bestAsk);
-        this.updateRowItem(tRow.querySelector('#lastChangeAsk'), this.lastChangeAsk);
-        this.updateRowItem(tRow.querySelector('#lastChangeBid'), this.lastChangeBid);
+        if (tRow) {
+          this.updateRowItem(tRow.querySelector('#name'), this.name);
+          this.updateRowItem(tRow.querySelector('#bestBid'), this.bestBid);
+          this.updateRowItem(tRow.querySelector('#bestAsk'), this.bestAsk);
+          this.updateRowItem(tRow.querySelector('#lastChangeAsk'), this.lastChangeAsk);
+          this.updateRowItem(tRow.querySelector('#lastChangeBid'), this.lastChangeBid);
+        }
+
+        this.calculateMidPrice();
+
+        return true;
+
+      } catch (e) {
+        console.log(e);
+        return false;
       }
-
-      this.calculateMidPrice();
 
     }
 

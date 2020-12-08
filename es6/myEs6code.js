@@ -134,7 +134,7 @@
           tBody.removeChild(tBody.firstChild);
         }
 
-        this.tableData.forEach((ele)=>{
+        this.tableData.forEach((ele) => {
           tBody.appendChild(ele.element);
         })
 
@@ -154,12 +154,16 @@
     this.bestAsk = bestAsk;
     this.lastChangeAsk = lastChangeAsk;
     this.lastChangeBid = lastChangeBid;
-    
+    this.rowOrder = ['name', 'bestBid', 'bestAsk', 'lastChangeAsk', 'lastChangeBid', 'sparkline'];
+
+    this.counter=0;
+
     //current row dom element
     this.element = {};
 
     //Array which stores all the midPrice calculatons based on which the graph is rendered.
     this.midPriceArray = [];
+    this.midPriceArrayTimestampMap = [];
 
     // FUNCTION TO RENDER THE CHART
     this.renderChart = function () {
@@ -167,6 +171,25 @@
         let tRow = document.querySelector(`tr[id='${this.id}']`);
         let exampleSparkline = tRow.getElementsByClassName('sparkline')
         Sparkline.draw(exampleSparkline[0], this.midPriceArray)
+
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    this.createRowItem = (id) => {
+      try {
+        let rowItem;
+        rowItem = document.createElement('td');
+
+        if (id === 'sparkline') {
+          rowItem.classList.add('sparkline');
+          rowItem.dataset.currency = this.name;
+        } else {
+          rowItem.id = id;
+          rowItem.innerText = this[id].toString();
+        }
+        return rowItem;
       } catch (e) {
         console.log(e);
       }
@@ -179,70 +202,50 @@
         var row = document.createElement('tr');
         row.id = this.id;
 
-        let rowItem;
-        rowItem = document.createElement('td');
-        rowItem.id = 'name';
-        rowItem.innerText = this.name.toString();
-        row.appendChild(rowItem);
+        this.rowOrder.forEach(rowName => {
+          row.appendChild(this.createRowItem(rowName));
+        })
 
-        rowItem = document.createElement('td');
-        rowItem.id = 'bestBid';
-        rowItem.innerText = this.bestBid.toString();
-        row.appendChild(rowItem);
-
-        rowItem = document.createElement('td');
-        rowItem.id = 'bestAsk';
-        rowItem.innerText = this.bestAsk.toString();
-        row.appendChild(rowItem);
-
-        rowItem = document.createElement('td');
-        rowItem.id = 'lastChangeAsk';
-        rowItem.innerText = this.lastChangeAsk.toString();
-        row.appendChild(rowItem);
-
-        rowItem = document.createElement('td');
-        rowItem.id = 'lastChangeBid';
-        rowItem.innerText = this.lastChangeBid.toString();
-        row.appendChild(rowItem);
-
-        rowItem = document.createElement('td');
-        rowItem.classList.add('sparkline');
-        rowItem.dataset.currency = this.name;
-       
-        row.appendChild(rowItem);
-
+        
         //set this element in an obj attr as it will be required for sorting and rerendering
         this.element = row;
-
         tBody.appendChild(row);
-        
-        this.startDataRefreshClock();
+
+        this.calculateMidPrice();
 
       } catch (e) {
         console.log(e);
       }
     }
 
-
-    //FUNCTION TO START THE TIMER
-    this.startDataRefreshClock = function(){
-      setInterval(()=>{
-        //calculate the mid price every second
-        this.calculateMidPrice();
-      },100)
-    }
-
-    //FUNCTION TO CALCULATE THE MID PRICE 
-    //AND REMOVE OLD DATA IF BEYOND 30SEC
+    //Function to calculate the midPrice 
     this.calculateMidPrice = function () {
       try {
         let calculatedMidPrice = (this.bestBid + this.bestAsk) / 2;
 
-        if (this.midPriceArray.length > 300) {
-          this.midPriceArray.pop();
-          this.midPriceArray.unshift(calculatedMidPrice);
-        } else {
-          this.midPriceArray.push(calculatedMidPrice);
+        this.midPriceArrayTimestampMap.push({
+          value: calculatedMidPrice,
+          time: new Date()
+        })
+
+        let midPriceArrTemp = [];
+
+        this.midPriceArrayTimestampMap = this.midPriceArrayTimestampMap.filter(ele => {
+          let currentTime = new Date();
+          //check if the stored value timestamp is older than 30secs
+          if(currentTime.getTime() - ele.time.getTime() <= 30000){
+            midPriceArrTemp.push(ele.value);
+            return true;
+          }else{
+            //remove the entry older than 30sec
+            return false;
+          }
+        })
+
+        this.midPriceArray = midPriceArrTemp;
+
+        if(this.name == 'gbpjpy'){
+          console.log(midPriceArrTemp);
         }
         setTimeout(() => {
           this.renderChart();
@@ -273,16 +276,12 @@
         this.updateRowItem(tRow.querySelector('#lastChangeBid'), this.lastChangeBid);
       }
 
+      this.calculateMidPrice();
+
     }
-    this.highlightItem = function (tRow) {
-      tRow.classList.add('blink');
-      setTimeout(function () {
-        tRow.classList.remove('blink');
-      }, 500);
-    }
+
     this.updateRowItem = function (rowItem, value) {
       rowItem.innerText = value;
-      this.highlightItem(rowItem);
     }
   }
 
